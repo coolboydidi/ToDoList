@@ -1,10 +1,16 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.Dimension;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.ArrayList;
 
 
 public class ToDoApp {
+    private ArrayList<String> taskList;
+
     public ToDoApp() {
+        this.taskList = new ArrayList<String>();
         JFrame frame = new JFrame("To Do App");
 
         JPanel westPanel = new JPanel();
@@ -27,6 +33,36 @@ public class ToDoApp {
         enterTask.setPreferredSize(new Dimension(25, 35));
         eastPanel.setLayout(new BorderLayout());
         eastPanel.setBackground(Color.WHITE);
+        enterTask.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == 10) {
+                    taskList.add(enterTask.getText());
+                    enterTask.setText("");
+                    System.out.println(taskList);
+                    // only working once -- fix this
+                    JPanel checkBoxPanel = new JPanel();
+                    checkBoxPanel.setLayout(new FlowLayout());
+                    for(int i = 0 ; i < taskList.size(); i++) {
+                        checkBoxPanel.add(new JCheckBox(taskList.get(i)));
+                    }
+                    checkBoxPanel.setBackground(Color.WHITE);
+                    eastPanel.add(checkBoxPanel, BorderLayout.CENTER);
+                    SwingUtilities.updateComponentTreeUI(frame);
+                }
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
 
         JPanel eastSouthPanel = new JPanel();
         eastSouthPanel.setLayout(new FlowLayout());
@@ -37,8 +73,15 @@ public class ToDoApp {
         eastSouthPanel.setBackground(Color.WHITE);
         eastPanel.add(eastSouthPanel, BorderLayout.SOUTH);
 
+        JLabel tasksLabel = new JLabel("Tasks");
+        tasksLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        tasksLabel.setFont(new Font("Serif", Font.BOLD, 35));
+        tasksLabel.setForeground(Color.RED);
+        eastPanel.add(tasksLabel, BorderLayout.NORTH);
+
 
         frame.add(eastPanel);
+        frame.repaint();
 
 
 
@@ -52,7 +95,9 @@ public class ToDoApp {
     }
 
 
+
     public static void main(String[] args) {
         ToDoApp newApp = new ToDoApp();
     }
+
 }
