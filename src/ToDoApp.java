@@ -1,13 +1,20 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
+import javax.swing.BoxLayout;
+import java.util.*;
+import javax.mail.*;
+import javax.mail.internet.*;
+
+
 
 public class ToDoApp {
-    private ArrayList<String> taskList;
+    private final ArrayList<String> taskList;
 
     public ToDoApp() {
         this.taskList = new ArrayList<String>();
@@ -18,21 +25,30 @@ public class ToDoApp {
         westPanel.setLayout(new BorderLayout());
         JPanel eastPanel = new JPanel();
 
-        JLabel projectsLabel = new JLabel("Projects");
+        JLabel projectsLabel = new JLabel("Reflection");
         projectsLabel.setHorizontalAlignment(SwingConstants.LEFT);
         projectsLabel.setFont(new Font("Serif", Font.BOLD, 35));
         projectsLabel.setForeground(Color.BLACK);
-        JButton addProjectButton = new JButton("Add Project");
-        westPanel.add(addProjectButton, BorderLayout.SOUTH);
         westPanel.add(projectsLabel, BorderLayout.NORTH);
 
+        JPanel westSouthPanel = new JPanel();
+        westSouthPanel.setLayout(new FlowLayout());
+        JButton emailButtonWest = new JButton("Email");
+        JTextField enterTaskWest = new JTextField("Enter Email ", 10);
+        enterTaskWest.setPreferredSize(new Dimension(10, 35));
+        westSouthPanel.add(enterTaskWest);
+        westSouthPanel.add(emailButtonWest);
+        westPanel.add(westSouthPanel, BorderLayout.SOUTH);
 
         frame.add(westPanel, BorderLayout.WEST);
 
-        JTextField enterTask = new JTextField("Add a Task ", 25 );
+        JTextField enterTask = new JTextField("Add a Task ", 25);
         enterTask.setPreferredSize(new Dimension(25, 35));
         eastPanel.setLayout(new BorderLayout());
         eastPanel.setBackground(Color.WHITE);
+        JPanel checkBoxPanel = new JPanel();
+        checkBoxPanel.setLayout(new FlowLayout());
+
         enterTask.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -41,21 +57,16 @@ public class ToDoApp {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == 10) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     taskList.add(enterTask.getText());
                     enterTask.setText("");
                     System.out.println(taskList);
-                    // only working once -- fix this
-                    JPanel checkBoxPanel = new JPanel();
-                    checkBoxPanel.setLayout(new FlowLayout());
-                    for(int i = 0 ; i < taskList.size(); i++) {
-                        checkBoxPanel.add(new JCheckBox(taskList.get(i)));
-                    }
+
+                    checkBoxPanel.add(new JCheckBox(taskList.get(taskList.size() - 1)));
                     checkBoxPanel.setBackground(Color.WHITE);
                     eastPanel.add(checkBoxPanel, BorderLayout.CENTER);
                     SwingUtilities.updateComponentTreeUI(frame);
                 }
-
             }
 
             @Override
@@ -67,8 +78,14 @@ public class ToDoApp {
         JPanel eastSouthPanel = new JPanel();
         eastSouthPanel.setLayout(new FlowLayout());
 
-        JButton emailButton = new JButton("Email");
-        eastSouthPanel.add(emailButton);
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        eastSouthPanel.add(deleteButton);
         eastSouthPanel.add(enterTask);
         eastSouthPanel.setBackground(Color.WHITE);
         eastPanel.add(eastSouthPanel, BorderLayout.SOUTH);
@@ -84,10 +101,9 @@ public class ToDoApp {
         frame.repaint();
 
 
-
         //4. Size the frame.
         frame.setSize(800, 600);
-        frame.setResizable(false);
+        frame.setResizable(true);
 
 
         //5. Show it.
@@ -95,9 +111,7 @@ public class ToDoApp {
     }
 
 
-
     public static void main(String[] args) {
         ToDoApp newApp = new ToDoApp();
     }
-
 }
