@@ -1,9 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
@@ -15,8 +12,12 @@ import javax.mail.internet.*;
 
 public class ToDoApp {
     private final ArrayList<String> taskList;
+    private final ArrayList<JCheckBox> checkBoxList;
+    private boolean toDelete;
 
     public ToDoApp() {
+        this.toDelete = false;
+        this.checkBoxList = new ArrayList<JCheckBox>();
         this.taskList = new ArrayList<String>();
         JFrame frame = new JFrame("To Do App");
 
@@ -62,9 +63,11 @@ public class ToDoApp {
                     enterTask.setText("");
                     System.out.println(taskList);
 
-                    checkBoxPanel.add(new JCheckBox(taskList.get(taskList.size() - 1)));
+                    checkBoxList.add(new JCheckBox(taskList.get(taskList.size() - 1)));
+                    checkBoxPanel.add(checkBoxList.get(checkBoxList.size()-1));
                     checkBoxPanel.setBackground(Color.WHITE);
                     eastPanel.add(checkBoxPanel, BorderLayout.CENTER);
+
                     SwingUtilities.updateComponentTreeUI(frame);
                 }
             }
@@ -82,7 +85,21 @@ public class ToDoApp {
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                toDelete = true;
+                for(int x = 0; x < checkBoxList.size(); x++) {
+                    if (checkBoxList.get(x).isSelected() == true) {
+                        checkBoxList.remove(x);
+                        taskList.remove(x);
+                        x = -1;
 
+                    }
+
+                }
+                checkBoxPanel.removeAll();
+                for (int i = 0; i < checkBoxList.size(); i++) {
+                    checkBoxPanel.add(checkBoxList.get(i));
+                }
+                SwingUtilities.updateComponentTreeUI(frame);
             }
         });
         eastSouthPanel.add(deleteButton);
