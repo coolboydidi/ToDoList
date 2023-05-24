@@ -1,12 +1,21 @@
+package com.mkyong;
+import com.sun.mail.smtp.SMTPTransport;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.util.Date;
+import java.util.Properties;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 
-import javax.swing.BoxLayout;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
+
 
 
 
@@ -14,6 +23,13 @@ public class ToDoApp {
     private final ArrayList<String> taskList;
     private final ArrayList<JCheckBox> checkBoxList;
     private boolean toDelete;
+    private static final String SMTP_SERVER = "smtp.gmail.com";
+    private static final String USERNAME = "todolistemailclient@gmail.com";
+    private static final String PASSWORD = "vebbqsgnrskkeycq";
+
+    private static final String EMAIL_FROM = "todolistemailclient@gmail.com";
+    private static final String EMAIL_TO_CC = "";
+
 
     public ToDoApp() {
         this.toDelete = false;
@@ -32,14 +48,38 @@ public class ToDoApp {
         projectsLabel.setForeground(Color.BLACK);
         westPanel.add(projectsLabel, BorderLayout.NORTH);
 
+        JPanel textPanel = new JPanel();
+        JTextArea reflectionText = new JTextArea();
+        reflectionText.setPreferredSize(new Dimension(340, 500));
+        reflectionText.setLineWrap(true);
+
         JPanel westSouthPanel = new JPanel();
         westSouthPanel.setLayout(new FlowLayout());
+        JTextField enterEmail = new JTextField("Enter Email ", 10);
+
+        westSouthPanel.add(enterEmail);
         JButton emailButtonWest = new JButton("Email");
-        JTextField enterTaskWest = new JTextField("Enter Email ", 10);
-        enterTaskWest.setPreferredSize(new Dimension(10, 35));
-        westSouthPanel.add(enterTaskWest);
+        emailButtonWest.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String body = "To Do:";
+                for (int l = 0; l < taskList.size(); l++) {
+                    body += "\n" + "-" + taskList.get(l);
+                }
+                body += "\n \n" + "Notes: " + reflectionText.getText();
+
+                Format f = new SimpleDateFormat("MM/dd/yy");
+                String subject = "To Do List " + f.format(new Date()) + ":";
+
+                sendEmail(enterEmail.getText(), body, subject);
+            }
+        });
         westSouthPanel.add(emailButtonWest);
         westPanel.add(westSouthPanel, BorderLayout.SOUTH);
+
+
+        textPanel.add(reflectionText);
+        westPanel.add(textPanel, BorderLayout.CENTER);
 
         frame.add(westPanel, BorderLayout.WEST);
 
@@ -66,6 +106,8 @@ public class ToDoApp {
                     checkBoxList.add(new JCheckBox(taskList.get(taskList.size() - 1)));
                     checkBoxPanel.add(checkBoxList.get(checkBoxList.size()-1));
                     checkBoxPanel.setBackground(Color.WHITE);
+                    checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.Y_AXIS));
+
                     eastPanel.add(checkBoxPanel, BorderLayout.CENTER);
 
                     SwingUtilities.updateComponentTreeUI(frame);
@@ -87,7 +129,7 @@ public class ToDoApp {
             public void actionPerformed(ActionEvent e) {
                 toDelete = true;
                 for(int x = 0; x < checkBoxList.size(); x++) {
-                    if (checkBoxList.get(x).isSelected() == true) {
+                    if (checkBoxList.get(x).isSelected()) {
                         checkBoxList.remove(x);
                         taskList.remove(x);
                         x = -1;
@@ -96,8 +138,8 @@ public class ToDoApp {
 
                 }
                 checkBoxPanel.removeAll();
-                for (int i = 0; i < checkBoxList.size(); i++) {
-                    checkBoxPanel.add(checkBoxList.get(i));
+                for (JCheckBox jCheckBox : checkBoxList) {
+                    checkBoxPanel.add(jCheckBox);
                 }
                 SwingUtilities.updateComponentTreeUI(frame);
             }
@@ -120,7 +162,7 @@ public class ToDoApp {
 
         //4. Size the frame.
         frame.setSize(800, 600);
-        frame.setResizable(true);
+        frame.setResizable(false);
 
 
         //5. Show it.
@@ -131,4 +173,58 @@ public class ToDoApp {
     public static void main(String[] args) {
         ToDoApp newApp = new ToDoApp();
     }
+
+    public static void sendEmail(String emailTo, String emailBody, String subject) {
+
+        Properties prop = System.getProperties();
+        prop.put("mail.smtp.starttls.enable", "true");
+        prop.put("mail.smtp.host", SMTP_SERVER); //optional, defined in SMTPTransport
+        prop.put("mail.smtp.auth", "true");
+        prop.put("mail.smtp.port", "587"); // default port 25
+        prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+
+        Session session = Session.getInstance(prop, null);
+        Message msg = new MimeMessage(session);
+
+        try {
+
+            // from
+            msg.setFrom(new InternetAddress(EMAIL_FROM));
+
+            // to
+            msg.setRecipients(Message.RecipientType.TO,
+                    InternetAddress.parse(emailTo, false));
+
+            // cc
+            msg.setRecipients(Message.RecipientType.CC,
+                    InternetAddress.parse(EMAIL_TO_CC, false));
+
+            // subject
+            msg.setSubject(subject);
+
+            // content
+            msg.setText(emailBody);
+
+            msg.setSentDate(new Date());
+
+            // Get SMTPTransport
+            SMTPTransport t = (SMTPTransport) session.getTransport("smtp");
+
+            // connect
+            t.connect(SMTP_SERVER, USERNAME, PASSWORD);
+
+            // send
+            t.sendMessage(msg, msg.getAllRecipients());
+
+            System.out.println("Response: " + t.getLastServerResponse());
+
+            t.close();
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
 }
