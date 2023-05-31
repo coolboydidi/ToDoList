@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat;
 public class ToDoApp {
     private final ArrayList<String> taskList;
     private final ArrayList<JCheckBox> checkBoxList;
-    private boolean toDelete;
+
     private static final String SMTP_SERVER = "smtp.gmail.com";
     private static final String USERNAME = "todolistemailclient@gmail.com";
     private static final String PASSWORD = "vebbqsgnrskkeycq";
@@ -32,7 +32,6 @@ public class ToDoApp {
 
 
     public ToDoApp() {
-        this.toDelete = false;
         this.checkBoxList = new ArrayList<JCheckBox>();
         this.taskList = new ArrayList<String>();
         JFrame frame = new JFrame("To Do App");
@@ -52,6 +51,7 @@ public class ToDoApp {
         JTextArea reflectionText = new JTextArea();
         reflectionText.setPreferredSize(new Dimension(340, 500));
         reflectionText.setLineWrap(true);
+        reflectionText.setWrapStyleWord(true);
 
         JPanel westSouthPanel = new JPanel();
         westSouthPanel.setLayout(new FlowLayout());
@@ -127,13 +127,11 @@ public class ToDoApp {
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                toDelete = true;
                 for(int x = 0; x < checkBoxList.size(); x++) {
                     if (checkBoxList.get(x).isSelected()) {
                         checkBoxList.remove(x);
                         taskList.remove(x);
                         x = -1;
-
                     }
 
                 }
@@ -228,3 +226,11 @@ public class ToDoApp {
     }
 
 }
+
+/* Resources:
+https://mkyong.com/java/java-how-to-send-email/
+https://docs.oracle.com/javase/8/docs/api/javax/swing/JCheckBox.html
+https://www.tutorialspoint.com/format-date-with-simpledateformat-mm-dd-yy-in-java#:~:text=Format%20date%20with%20SimpleDateFormat('MM%2Fdd%2Fyy')%20in%20Java&text=%2F%2F%20displaying%20date%20Format%20f,Current%20Date%20%3D%20%22%2BstrDate)%3B
+https://www.youtube.com/watch?v=A7HAB5whD6I
+
+* */
